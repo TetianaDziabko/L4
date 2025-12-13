@@ -1,0 +1,60 @@
+import warnings
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.integrate import quad, IntegrationWarning
+warnings.filterwarnings("ignore", category=IntegrationWarning)
+
+#  Функція сигналу
+def f(t, n):
+    # Для n = 7: f(t) = t^2n
+    return t**(2*n)
+
+# Інтегральне перетворення Фур'є
+def fourier_transform(T, n, k_range):
+    results = []
+    N = 100 * n  # межі інтегрування
+    for k in k_range:
+        w_k = 2 * np.pi * k / T  # кутова частота
+
+        # Обчислення дійсної частини
+        real_part = quad(lambda t: f(t, n) * np.cos(w_k * t), -N, N, limit=200)[0]
+        # Обчислення уявної частини
+        imag_part = quad(lambda t: -f(t, n) * np.sin(w_k * t), -N, N, limit=200)[0]
+
+        F_wk = real_part + 1j * imag_part
+        results.append(F_wk)
+    return np.array(results)
+
+# Основна частина
+def main():
+    n = 7
+    k_values = np.arange(0, 100, 1)
+
+    for T in [4, 8, 16, 32, 64, 128]:
+        print(f"Обчислення для T = {T} ...")
+        F_values = fourier_transform(T, n, k_values)
+        amplitude = np.abs(F_values) # спектр амплітуд
+        real_part = np.real(F_values) # дійсна частина
+
+        # Побудова графіків
+        plt.figure(figsize=(10, 4))
+        plt.subplot(1, 2, 1)
+        plt.title(f"Re F(ωₖ), T={T}")
+        plt.plot(k_values, real_part, 'b')
+        plt.xlabel("k")
+        plt.ylabel("Re F(ωₖ)")
+        plt.grid(True)
+
+        plt.subplot(1, 2, 2)
+        plt.title(f"|F(ωₖ)|, T={T}")
+        plt.plot(k_values, amplitude, 'r')
+        plt.xlabel("k")
+        plt.ylabel("|F(ωₖ)|")
+        plt.grid(True)
+
+        plt.suptitle(f"Інтегральне перетворення Фур’є для f(t)=t^(2n), n={n}")
+        plt.tight_layout()
+        plt.show()
+
+if __name__ == "__main__":
+    main()
