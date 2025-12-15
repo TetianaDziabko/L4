@@ -28,9 +28,15 @@ def fourier_transform(T, n, k_range):
 # Основна частина
 def main():
     n = 7
-    k_values = np.arange(0, 100, 1)
+    k_values_full = np.arange(0, 100, 1)
+    k_values_short = np.arange(0, 41, 1)  # 0..40
 
     for T in [4, 8, 16, 32, 64, 128]:
+        if T == 128:
+          k_values = k_values_short
+        else:
+          k_values = k_values_full
+
         print(f"Обчислення для T = {T} ...")
         F_values = fourier_transform(T, n, k_values)
         amplitude = np.abs(F_values) # спектр амплітуд
